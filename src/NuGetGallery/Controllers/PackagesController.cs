@@ -164,6 +164,11 @@ namespace NuGetGallery
         public async virtual Task<ActionResult> UploadPackage()
         {
             var currentUser = _userService.FindByUsername(GetIdentity().Name);
+            if (!currentUser.Confirmed)
+            {
+                TempData["Act"] = "upload a package";
+                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+            }
 
             using (var existingUploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
             {
@@ -182,6 +187,11 @@ namespace NuGetGallery
         public virtual async Task<ActionResult> UploadPackage(HttpPostedFileBase uploadFile)
         {
             var currentUser = _userService.FindByUsername(GetIdentity().Name);
+            if (!currentUser.Confirmed)
+            {
+                TempData["Act"] = "upload a package";
+                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+            }
 
             using (var existingUploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
             {
@@ -483,6 +493,13 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
+            var user = _userService.FindByUsername(GetIdentity().Name);
+            if (!user.Confirmed)
+            {
+                TempData["Act"] = "send a contact request to package owners";
+                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+            }
+
             var model = new ContactOwnersViewModel
             {
                 PackageId = package.Id,
@@ -508,7 +525,13 @@ namespace NuGetGallery
                 return HttpNotFound();
             }
 
-            var user = _userService.FindByUsername(HttpContext.User.Identity.Name);
+            var user = _userService.FindByUsername(GetIdentity().Name);
+            if (!user.Confirmed)
+            {
+                TempData["Act"] = "send a contact request to package owners";
+                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+            }
+
             var fromAddress = new MailAddress(user.EmailAddress, user.Username);
             _messageService.SendContactOwnersMessage(
                 fromAddress, package, contactForm.Message, Url.Action(MVC.Users.Edit(), protocol: Request.Url.Scheme));
