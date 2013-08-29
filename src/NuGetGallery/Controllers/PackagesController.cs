@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -166,8 +165,8 @@ namespace NuGetGallery
             var currentUser = _userService.FindByUsername(GetIdentity().Name);
             if (!currentUser.Confirmed)
             {
-                TempData["Act"] = "upload a package";
-                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+                HttpContext.SetConfirmationContext("upload a package", Url.Current());
+                return new RedirectResult(Url.ConfirmationRequired());
             }
 
             using (var existingUploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
@@ -189,8 +188,8 @@ namespace NuGetGallery
             var currentUser = _userService.FindByUsername(GetIdentity().Name);
             if (!currentUser.Confirmed)
             {
-                TempData["Act"] = "upload a package";
-                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+                HttpContext.SetConfirmationContext("upload a package", Url.Current());
+                return new RedirectResult(Url.ConfirmationRequired());
             }
 
             using (var existingUploadFile = await _uploadFileService.GetUploadFileAsync(currentUser.Key))
@@ -496,8 +495,8 @@ namespace NuGetGallery
             var user = _userService.FindByUsername(GetIdentity().Name);
             if (!user.Confirmed)
             {
-                TempData["Act"] = "send a contact request to package owners";
-                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+                HttpContext.SetConfirmationContext("contact package owners", Url.Current());
+                return new RedirectResult(Url.ConfirmationRequired());
             }
 
             var model = new ContactOwnersViewModel
@@ -528,8 +527,8 @@ namespace NuGetGallery
             var user = _userService.FindByUsername(GetIdentity().Name);
             if (!user.Confirmed)
             {
-                TempData["Act"] = "send a contact request to package owners";
-                return new RedirectResult(Url.ConfirmationRequired(Url.Current()));
+                HttpContext.SetConfirmationContext("contact package owners", Url.Current());
+                return new RedirectResult(Url.ConfirmationRequired());
             }
 
             var fromAddress = new MailAddress(user.EmailAddress, user.Username);
